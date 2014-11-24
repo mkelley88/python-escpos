@@ -50,6 +50,21 @@ class Escpos:
                 buffer = ""
                 cont = 0
 
+    def setPrintSpeed(self, speed):
+        if speed == "115200":
+	    print("Changing speed to %s" % speed)
+            self._raw(str(HW_SPEED+"\x31\x31\x35\x32\x30\x30"))
+            self._raw(HW_COMMIT)
+        elif speed == "57600":
+	    print("Changing speed to %s" % speed)
+            self._raw(str(HW_SPEED+"\x35\x37\x36\x30\x30"))
+            self._raw(HW_COMMIT)
+        elif speed == "38400":
+	    print("Changing speed to %s" % speed)
+            self._raw(HW_SPEED+"\x33\x38\x34\x30\x30")
+            self._raw(HW_COMMIT)
+        else:
+            pass
 
     def image(self, img):
         """ Parse image and prepare it to a printable format """
@@ -64,7 +79,7 @@ class Escpos:
         im = im_open.convert("RGB")
 
         if im.size[0] > 512:
-            print  "WARNING: Image is wider than 512 and could be truncated at print time "
+            print("WARNING: Image is wider than 512 and could be truncated at print time ")
         if im.size[1] > 255:
             raise ImageSizeError()
 
@@ -105,16 +120,17 @@ class Escpos:
         """ Print Barcode """
         # Align Bar Code()
         self._raw(TXT_ALIGN_CT)
+
         # Height
-        if height >=2 or height <=6:
-            self._raw(BARCODE_HEIGHT)
-        else:
-            raise BarcodeSizeError()
+        #if  1 <=  height <=255:
+        self._raw(BARCODE_HEIGHT)
+        #else:
+        #    raise BarcodeSizeError()
         # Width
-        if width >= 1 or width <=255:
-            self._raw(BARCODE_WIDTH)
-        else:
-            raise BarcodeSizeError()
+        #if  2 <= width <=6:
+        self._raw(BARCODE_WIDTH)
+        #else:
+        #    raise BarcodeSizeError()
         # Font
         if font.upper() == "B":
             self._raw(BARCODE_FONT_B)
@@ -144,6 +160,10 @@ class Escpos:
             self._raw(BARCODE_ITF)
         elif bc.upper() == "NW7":
             self._raw(BARCODE_NW7)
+        elif bc.upper() == "CODE93":
+            self._raw(BARCODE_CODE93)
+        elif bc.upper() == "CODE128":
+            self._raw(BARCODE_CODE128)
         else:
             raise BarcodeTypeError()
         # Print Code
